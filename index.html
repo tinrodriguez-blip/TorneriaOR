@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rodriguez Metal | Tornería de Precisión · Lavallol, Buenos Aires</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    /* ─── RESET ─────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary:   #1E1E22;
+      --bg-secondary: #2F343C;
+      --blue:         #1D4ED8;
+      --orange:       #F97316;
+      --white:        #F5F5F5;
+      --muted:        #9CA3AF;
+      --border:       rgba(156,163,175,0.12);
+      --orange-glow:  rgba(249,115,22,0.25);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--white);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ─── SCROLLBAR ──────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+
+    /* ─── UTILITIES ──────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    .section-pad { padding: 7rem 0; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      margin-bottom: 1.2rem;
+    }
+    .tag-line { width: 32px; height: 2px; background: var(--orange); flex-shrink: 0; }
+    .tag-text {
+      font-size: .7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -.5px;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 560px;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 999;
+      padding: 1.1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(30,30,34,.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(249,115,22,.18);
+      transition: box-shadow .3s;
+    }
+
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .nav-logo span { color: var(--orange); }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2.2rem;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .82rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: color .25s;
+    }
+    .nav-links a:hover { color: var(--orange); }
+
+    .nav-cta {
+      background: var(--orange);
+      color: #fff !important;
+      padding: .5rem 1.3rem;
+      border-radius: 3px;
+      transition: background .25s, box-shadow .25s !important;
+    }
+    .nav-cta:hover {
+      background: #ea6c0a !important;
+      box-shadow: 0 4px 20px var(--orange-glow);
+      color: #fff !important;
+    }
+
+    /* ─── HERO ───────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 9rem 2rem 5rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 55%, rgba(29,78,216,.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(249,115,22,.12) 0%, transparent 55%),
+        var(--bg-primary);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(249,115,22,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(249,115,22,.04) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+
+    /* Animated corners */
+    .hero-corner {
+      position: absolute;
+      width: 60px; height: 60px;
+      border-color: var(--orange);
+      border-style: solid;
+      opacity: .35;
+    }
+    .hero-corner.tl { top: 6rem; left: 3rem; border-width: 2px 0 0 2px; }
+    .hero-corner.tr { top: 6rem; right: 3rem; border-width: 2px 2px 0 0; }
+    .hero-corner.bl { bottom: 3rem; left: 3rem; border-width: 0 0 2px 2px; }
+    .hero-corner.br { bottom: 3rem; right: 3rem; border-width: 0 2px 2px 0; }
+
+    .hero-content { position: relative; max-width: 860px; }
+
+    .hero-badge {
+      display: inline-block;
+      border: 1px solid rgba(249,115,22,.4);
+      background: rgba(249,115,22,.1);
+      color: var(--orange);
+      padding: .35rem 1.1rem;
+      border-radius: 50px;
+      font-size: .72rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 1.8rem;
+    }
+
+    .hero-title {
+      font-size: clamp(3.2rem, 9vw, 7.5rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -3px;
+      margin-bottom: 1.4rem;
+    }
+    .hero-title .line { display: block; overflow: hidden; }
+    .hero-title .word { display: inline-block; }
+    .hero-title .hl { color: var(--orange); }
+
+    .hero-sub {
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.8rem;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--orange);
+      color: #fff;
+      padding: .9rem 2.2rem;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: .9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all .3s;
+    }
+    .btn-primary:hover {
+      background: #ea6c0a;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 35px var(--orange-glow);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: transparent;
+      color: var(--white);
+      padding: .9rem 2.2rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      font-weight: 600;
+      font-size: .9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all .3s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* Hero Stats */
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 5rem;
+      margin-top: 4.5rem;
+      padding-top: 3rem;
+      border-top: 1px solid var(--border);
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2.8rem;
+      font-weight: 900;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: .1rem;
+      line-height: 1;
+    }
+    .stat-count { color: var(--orange); }
+    .stat-plus { color: var(--muted); font-size: 1.6rem; }
+    .stat-label { font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: .4rem; }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+    }
+    .scroll-hint span { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--orange), transparent);
+      animation: scrollPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollPulse { 0%,100% { opacity: .4; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(.6); } }
+
+    /* ─── ABOUT ──────────────────────────────────── */
+    .about { background: var(--bg-secondary); padding: 7rem 0; }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    .about-visual { position: relative; }
+
+    .about-gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    .about-photo {
+      aspect-ratio: 1;
+      background: var(--bg-primary);
+      border: 1px solid rgba(249,115,22,.25);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--muted);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .about-photo::after {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(135deg, rgba(29,78,216,.07) 0%, transparent 60%);
+    }
+
+    .about-photo-placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: .4rem; padding: .5rem; text-align: center;
+    }
+    .about-photo-icon { font-size: 2rem; }
+    .about-photo p { font-size: .7rem; color: var(--muted); }
+    .about-photo-hint { font-size: .62rem !important; color: var(--orange) !important; font-family: monospace; }
+
+    .about-badge {
+      position: absolute;
+      bottom: -1.5rem;
+      right: -1.5rem;
+      background: var(--orange);
+      color: #fff;
+      padding: 1.4rem 1.6rem;
+      border-radius: 6px;
+      text-align: center;
+      min-width: 110px;
+      box-shadow: 0 8px 30px var(--orange-glow);
+    }
+    .about-badge-num {
+      font-size: 2.8rem;
+      font-weight: 900;
+      display: block;
+      line-height: 1;
+    }
+    .about-badge-text { font-size: .65rem; letter-spacing: 1px; text-transform: uppercase; opacity: .9; }
+
+    .about-features { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.4rem; }
+
+    .feature {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.1rem 1.2rem;
+      background: rgba(30,30,34,.6);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color .3s, transform .3s;
+    }
+    .feature:hover { border-color: rgba(249,115,22,.35); transform: translateX(4px); }
+
+    .feature-icon {
+      width: 40px; height: 40px;
+      background: rgba(249,115,22,.1);
+      border: 1px solid rgba(249,115,22,.3);
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .feature-title { font-size: .92rem; font-weight: 700; margin-bottom: .2rem; }
+    .feature-desc { font-size: .82rem; color: var(--muted); }
+
+    /* ─── SERVICES ───────────────────────────────── */
+    .services { padding: 7rem 0; }
+
+    .services-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 3.5rem;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .price-note {
+      background: rgba(29,78,216,.12);
+      border: 1px solid rgba(29,78,216,.3);
+      color: #93b4ff;
+      padding: .7rem 1.2rem;
+      border-radius: 4px;
+      font-size: .82rem;
+      line-height: 1.5;
+      max-width: 340px;
+    }
+    .price-note strong { color: #fff; }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.3rem;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem 1.8rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .35s, border-color .35s, box-shadow .35s;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .4s;
+    }
+    .card:hover { transform: translateY(-6px); border-color: rgba(249,115,22,.3); box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+    .card:hover::before { transform: scaleX(1); }
+
+    .card-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: .7rem; }
+    .card-desc { font-size: .85rem; color: var(--muted); line-height: 1.65; }
+
+    /* safety net: GSAP nunca debe dejar estos elementos invisibles */
+    .card, .feature, .step, .why-card, .about-visual, .about-text > *, .contact-item, .form-box { opacity: 1; }
+
+    /* ─── PROCESS ────────────────────────────────── */
+    .process { background: var(--bg-secondary); padding: 7rem 0; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 4rem;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 2rem;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(to right, var(--orange), rgba(249,115,22,.15));
+    }
+
+    .step { text-align: center; }
+
+    .step-circle {
+      width: 4rem; height: 4rem;
+      border-radius: 50%;
+      background: var(--bg-primary);
+      border: 2px solid var(--orange);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--orange);
+      margin: 0 auto 1.5rem;
+      position: relative;
+      z-index: 1;
+      transition: background .3s;
+    }
+    .step:hover .step-circle { background: var(--orange); color: #fff; }
+
+    .step-title { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+    .step-desc { font-size: .83rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── DIFFERENTIATORS ────────────────────────── */
+    .why { padding: 7rem 0; }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.3rem;
+      margin-top: 3.5rem;
+    }
+
+    .why-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      transition: border-color .3s;
+    }
+    .why-card:hover { border-color: rgba(249,115,22,.3); }
+
+    .why-icon {
+      width: 48px; height: 48px;
+      background: rgba(249,115,22,.1);
+      border: 1px solid rgba(249,115,22,.3);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .why-title { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+    .why-desc { font-size: .85rem; color: var(--muted); line-height: 1.65; }
+
+    /* ─── CONTACT ────────────────────────────────── */
+    .contact { background: var(--bg-secondary); padding: 7rem 0; }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 5rem;
+      align-items: start;
+      margin-top: 3rem;
+    }
+
+    .contact-items { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
+
+    .contact-item {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      padding: 1.1rem 1.3rem;
+      background: rgba(30,30,34,.7);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      transition: border-color .3s;
+    }
+    .contact-item:hover { border-color: rgba(249,115,22,.3); }
+
+    .ci-icon {
+      width: 46px; height: 46px;
+      background: rgba(249,115,22,.1);
+      border: 1px solid rgba(249,115,22,.3);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .ci-label { font-size: .68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: .2rem; }
+    .ci-value { font-size: .97rem; font-weight: 600; }
+    .ci-value a { color: var(--white); text-decoration: none; transition: color .25s; }
+    .ci-value a:hover { color: var(--orange); }
+
+    /* Form */
+    .form-box {
+      background: rgba(30,30,34,.8);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2.5rem;
+    }
+
+    .form-title { font-size: 1.25rem; font-weight: 800; margin-bottom: .5rem; }
+    .form-sub { font-size: .85rem; color: var(--muted); margin-bottom: 2rem; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .fg { margin-bottom: 1.1rem; }
+    .fg label { display: block; font-size: .7rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: .45rem; font-weight: 600; }
+
+    .fg input,
+    .fg textarea,
+    .fg select {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid rgba(156,163,175,.2);
+      border-radius: 5px;
+      padding: .78rem 1rem;
+      color: var(--white);
+      font-family: inherit;
+      font-size: .93rem;
+      transition: border-color .3s;
+      -webkit-appearance: none;
+    }
+    .fg input:focus,
+    .fg textarea:focus,
+    .fg select:focus { outline: none; border-color: var(--orange); }
+    .fg input::placeholder,
+    .fg textarea::placeholder { color: rgba(156,163,175,.5); }
+    .fg textarea { resize: vertical; min-height: 110px; }
+
+    .fg select { cursor: pointer; }
+    .fg select option { background: var(--bg-primary); }
+
+    /* File upload zone */
+    .file-zone {
+      border: 2px dashed rgba(249,115,22,.35);
+      border-radius: 5px;
+      padding: 1.4rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: border-color .3s, background .3s;
+    }
+    .file-zone:hover, .file-zone.drag-over { border-color: var(--orange); background: rgba(249,115,22,.06); }
+    .file-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+    }
+    .fz-icon { font-size: 1.5rem; display: block; margin-bottom: .35rem; pointer-events: none; }
+    .fz-text { font-size: .78rem; color: var(--muted); line-height: 1.6; pointer-events: none; }
+    .fz-text strong { color: var(--orange); display: block; font-size: .82rem; }
+    .file-chosen {
+      display: none;
+      margin-top: .7rem;
+      font-size: .8rem;
+      color: var(--white);
+      background: rgba(249,115,22,.1);
+      border: 1px solid rgba(249,115,22,.3);
+      border-radius: 4px;
+      padding: .5rem .9rem;
+      align-items: center;
+      gap: .6rem;
+    }
+    .file-chosen.show { display: flex; }
+    .fc-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .78rem; }
+    .fc-size { color: var(--muted); font-size: .72rem; flex-shrink: 0; }
+    .fc-remove { cursor: pointer; color: var(--muted); font-size: 1.1rem; flex-shrink: 0; line-height: 1; }
+    .fc-remove:hover { color: #f87171; }
+
+    /* Setup banner */
+    .setup-banner {
+      background: rgba(29,78,216,.12);
+      border: 1px solid rgba(29,78,216,.35);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      font-size: .82rem;
+      line-height: 1.7;
+      color: #93b4ff;
+    }
+    .setup-banner strong { color: #fff; display: block; margin-bottom: .3rem; }
+    .setup-banner code {
+      background: rgba(255,255,255,.08);
+      padding: .1rem .4rem;
+      border-radius: 3px;
+      font-family: monospace;
+      color: var(--orange);
+    }
+
+    .form-btn {
+      width: 100%;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      padding: .95rem 1rem;
+      border-radius: 5px;
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .3s, box-shadow .3s;
+      margin-top: .5rem;
+    }
+    .form-btn:hover {
+      background: #ea6c0a;
+      box-shadow: 0 8px 30px var(--orange-glow);
+    }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      background: rgba(0,0,0,.45);
+      border-top: 1px solid rgba(249,115,22,.15);
+      padding: 3rem 2rem 2rem;
+      text-align: center;
+    }
+
+    .footer-logo { font-size: 1.4rem; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: .4rem; }
+    .footer-logo span { color: var(--orange); }
+    .footer-tag { font-size: .82rem; color: var(--muted); margin-bottom: .6rem; }
+    .footer-divider { width: 40px; height: 1px; background: var(--orange); margin: 1.2rem auto; opacity: .4; }
+    .footer-copy { font-size: .72rem; color: rgba(156,163,175,.4); }
+
+    /* ─── HAMBURGER ──────────────────────────────── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: .4rem;
+      flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ─── RESPONSIVE ─────────────────────────────── */
+
+    /* Tablet ancho */
+    @media (max-width: 1024px) {
+      .about-grid { gap: 3.5rem; }
+      .contact-grid { gap: 3.5rem; }
+      .hero-stats { gap: 3rem; }
+      .services-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* Tablet */
+    @media (max-width: 900px) {
+      .section-pad { padding: 5rem 0; }
+      .about { padding: 5rem 0; }
+      .services, .process, .why, .contact { padding: 5rem 0; }
+
+      .about-grid,
+      .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+
+      .services-grid { grid-template-columns: 1fr 1fr; }
+
+      .steps { grid-template-columns: 1fr 1fr; }
+      .steps::before { display: none; }
+
+      .why-grid { grid-template-columns: 1fr; }
+
+      .form-row { grid-template-columns: 1fr; }
+
+      .about-badge { display: none; }
+    }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      /* Hamburger activo */
+      .nav-hamburger { display: flex; }
+
+      /* Menú móvil desplegable */
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: 62px; left: 0; right: 0;
+        background: rgba(22,22,26,.97);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        flex-direction: column;
+        gap: 0;
+        padding: .5rem 0 1rem;
+        border-bottom: 1px solid rgba(249,115,22,.2);
+        z-index: 998;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { border-bottom: 1px solid rgba(156,163,175,.08); }
+      .nav-links a {
+        display: block;
+        padding: .95rem 2rem;
+        font-size: .88rem;
+        letter-spacing: 1px;
+      }
+      .nav-cta {
+        margin: .5rem 2rem 0;
+        display: block;
+        text-align: center;
+        border-radius: 4px;
+        padding: .8rem 1rem !important;
+      }
+
+      /* Hero */
+      .hero { padding: 7rem 1.5rem 4rem; }
+      .hero-title { letter-spacing: -1.5px; }
+      .hero-stats { gap: 2rem; flex-wrap: wrap; justify-content: center; }
+      .hero-corner { display: none; }
+      .hero-buttons { flex-direction: column; align-items: stretch; max-width: 300px; margin-left: auto; margin-right: auto; }
+      .btn-primary, .btn-secondary { justify-content: center; }
+
+      /* Secciones */
+      .section-pad { padding: 4rem 0; }
+      .about { padding: 4rem 0; }
+      .services, .process, .why, .contact { padding: 4rem 0; }
+
+      .services-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .services-head { flex-direction: column; align-items: flex-start; }
+      .price-note { max-width: 100%; }
+    }
+
+    /* Mobile pequeño */
+    @media (max-width: 420px) {
+      .hero { padding: 6rem 1.2rem 3.5rem; }
+      .hero-title { letter-spacing: -1px; }
+      .hero-stats { gap: 1.5rem; }
+      .stat-num { font-size: 2.2rem; }
+      .about-gallery { gap: .5rem; }
+      .form-box { padding: 1.5rem 1.2rem; }
+      .container { padding: 0 1.2rem; }
+      .about-features { gap: 1rem; }
+      .feature { padding: .9rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ─────────────────────────────────────── -->
+<nav id="nav">
+  <div class="nav-logo">Tornería<span>OR</span></div>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#proceso">Proceso</a></li>
+    <li><a href="#por-que">Por qué elegirnos</a></li>
+    <li><a href="#contacto" class="nav-cta">Presupuesto</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ───────────────────────────────────────── -->
+<section class="hero" id="inicio">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-corner tl"></div>
+  <div class="hero-corner tr"></div>
+  <div class="hero-corner bl"></div>
+  <div class="hero-corner br"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">Tornería Metalúrgica · Lavallol, Buenos Aires</div>
+
+    <h1 class="hero-title">
+      <span class="line"><span class="word">Fabricamos</span></span>
+      <span class="line"><span class="word">cada <span class="hl">pieza</span></span></span>
+      <span class="line"><span class="word">con precisión</span></span>
+    </h1>
+
+    <p class="hero-sub">
+      Más de 40 años mecanizando piezas metálicas a medida. Tornería convencional, roscado, repuestos y prototipos. Presupuesto sin costo, entrega garantizada.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#contacto" class="btn-primary">Solicitar presupuesto →</a>
+      <a href="#servicios" class="btn-secondary">Ver servicios</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">
+          <span class="stat-count" data-target="40">0</span>
+          <span class="stat-plus">+</span>
+        </div>
+        <div class="stat-label">Años en el rubro</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">
+          <span class="stat-count" data-target="5000">0</span>
+          <span class="stat-plus">+</span>
+        </div>
+        <div class="stat-label">Piezas fabricadas</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">
+          <span class="stat-count" data-target="100">0</span>
+          <span class="stat-plus">%</span>
+        </div>
+        <div class="stat-label">Satisfacción</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span></span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ─── ABOUT ──────────────────────────────────────── -->
+<section class="about" id="nosotros">
+  <div class="container">
+    <div class="about-grid">
+
+      <div class="about-visual">
+        <div class="about-gallery">
+
+          <div class="about-photo">
+            <img src="assets/taller-1.jpeg" alt="Taller 1"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="about-photo-placeholder" style="display:none">
+              <span class="about-photo-icon">⚙️</span>
+              <p class="about-photo-hint">assets/taller-1.jpeg</p>
+            </div>
+          </div>
+
+          <div class="about-photo">
+            <img src="assets/taller-2.jpeg" alt="Taller 2"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="about-photo-placeholder" style="display:none">
+              <span class="about-photo-icon">🔩</span>
+              <p class="about-photo-hint">assets/taller-2.jpeg</p>
+            </div>
+          </div>
+
+          <div class="about-photo">
+            <img src="assets/taller-3.jpeg" alt="Taller 3"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="about-photo-placeholder" style="display:none">
+              <span class="about-photo-icon">🏭</span>
+              <p class="about-photo-hint">assets/taller-3.jpeg</p>
+            </div>
+          </div>
+
+          <div class="about-photo">
+            <img src="assets/taller-4.jpeg" alt="Taller 4"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="about-photo-placeholder" style="display:none">
+              <span class="about-photo-icon">⚒️</span>
+              <p class="about-photo-hint">assets/taller-4.jpeg</p>
+            </div>
+          </div>
+
+        </div>
+        <div class="about-badge">
+          <span class="about-badge-num">+40</span>
+          <span class="about-badge-text">años de<br>experiencia</span>
+        </div>
+      </div>
+
+      <div class="about-text">
+        <div class="tag">
+          <div class="tag-line"></div>
+          <span class="tag-text">Quiénes somos</span>
+        </div>
+        <h2 class="section-title">Omar Rodríguez,<br>tornero de oficio</h2>
+        <p class="section-desc">
+          Desde Lavallol, Buenos Aires, Omar Rodríguez lleva más de cuatro décadas al frente de su taller de tornería metalúrgica. Con experiencia acumulada y herramientas de precisión, fabrica piezas a medida para industrias, talleres y proyectos de todo tipo.
+        </p>
+        <p class="section-desc" style="margin-top: 1rem;">
+          Cada pieza que sale del taller lleva el sello de años de oficio, atención al detalle y compromiso con el resultado. Sin importar el tamaño del pedido, cada trabajo recibe la misma dedicación.
+        </p>
+
+        <div class="about-features">
+          <div class="feature">
+            <div class="feature-icon">🔩</div>
+            <div>
+              <div class="feature-title">Trabajo completamente a medida</div>
+              <div class="feature-desc">Cada pieza se fabrica según las especificaciones exactas del cliente, sin piezas estándar ni compromisos.</div>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <div>
+              <div class="feature-title">Respuesta y entrega rápida</div>
+              <div class="feature-desc">Presupuesto sin demoras y producción ágil para no frenar tus proyectos ni tu producción.</div>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🏆</div>
+            <div>
+              <div class="feature-title">Cuatro décadas de trayectoria</div>
+              <div class="feature-desc">La experiencia de más de 40 años respalda cada trabajo que sale del taller de Omar.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── SERVICES ───────────────────────────────────── -->
+<section class="services section-pad" id="servicios">
+  <div class="container">
+    <div class="services-head">
+      <div>
+        <div class="tag">
+          <div class="tag-line"></div>
+          <span class="tag-text">Servicios</span>
+        </div>
+        <h2 class="section-title">Lo que hacemos</h2>
+      </div>
+      <div class="price-note">
+        <strong>Precio según tu pieza</strong><br>
+        El costo depende del tipo de pieza, material, tamaño y complejidad. Consultanos sin compromiso y te respondemos con el presupuesto.
+      </div>
+    </div>
+
+    <div class="services-grid">
+      <div class="card">
+        <span class="card-icon">⚙️</span>
+        <h3 class="card-title">Tornería convencional</h3>
+        <p class="card-desc">Mecanizado en torno paralelo de ejes, bujes, tapones y piezas de revolución en acero, aluminio, bronce y más materiales.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔧</span>
+        <h3 class="card-title">Piezas a medida</h3>
+        <p class="card-desc">Fabricación de repuestos y componentes según plano o muestra. Ideal para maquinaria obsoleta o piezas fuera de catálogo.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔩</span>
+        <h3 class="card-title">Roscado y fileteado</h3>
+        <p class="card-desc">Roscas métricas, whitworth y gas. Machos, tarrajas y toda operación de roscado interior o exterior.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">⬡</span>
+        <h3 class="card-title">Agujereado y chaveteros</h3>
+        <p class="card-desc">Taladrado y chavetas basicas para complementar el mecanizado sin necesidad de tercerizar el trabajo.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🛠️</span>
+        <h3 class="card-title">Reparación de piezas</h3>
+        <p class="card-desc">Recuperación de piezas desgastadas o dañadas por mecanizado. Muchas veces más conveniente que reemplazar el componente.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📐</span>
+        <h3 class="card-title">Prototipos y series</h3>
+        <p class="card-desc">Desde una sola pieza de prueba hasta una pequeña serie. Cada unidad fabricada con la misma precisión y cuidado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROCESS ────────────────────────────────────── -->
+<section class="process" id="proceso">
+  <div class="container">
+    <div class="tag">
+      <div class="tag-line"></div>
+      <span class="tag-text">Cómo trabajamos</span>
+    </div>
+    <h2 class="section-title">Simple y directo</h2>
+    <p class="section-desc">Sin burocracia. Un proceso claro para que tu pieza esté lista cuanto antes.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-circle">01</div>
+        <h3 class="step-title">Consultá</h3>
+        <p class="step-desc">Contanos qué necesitás: plano, muestra o descripción. Por teléfono, email o en persona en el taller.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">02</div>
+        <h3 class="step-title">Presupuesto</h3>
+        <p class="step-desc">Evaluamos material, tamaño y complejidad. Te damos un precio claro, sin sorpresas ni costos ocultos.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">03</div>
+        <h3 class="step-title">Fabricación</h3>
+        <p class="step-desc">Omar trabaja tu pieza con precisión y cuidado. Sin apuros que comprometan la calidad.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">04</div>
+        <h3 class="step-title">Entrega</h3>
+        <p class="step-desc">Retirás en el taller en Lavallol o coordinamos el envío. Tu pieza, lista y controlada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHY ────────────────────────────────────────── -->
+<section class="why section-pad" id="por-que">
+  <div class="container">
+    <div class="tag">
+      <div class="tag-line"></div>
+      <span class="tag-text">Por qué elegirnos</span>
+    </div>
+    <h2 class="section-title">Experiencia que<br>se nota en cada pieza</h2>
+
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">🎯</div>
+        <div>
+          <div class="why-title">Precisión garantizada</div>
+          <div class="why-desc">Cada pieza se fabrica dentro de las tolerancias acordadas. Si no cumple lo especificado, se rehace sin cargo adicional.</div>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">💬</div>
+        <div>
+          <div class="why-title">Trato directo con el dueño</div>
+          <div class="why-desc">Hablás directamente con Omar, quien fabrica tu pieza. Sin intermediarios, sin malentendidos, sin teléfono descompuesto.</div>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">📦</div>
+        <div>
+          <div class="why-title">Piezas únicas o en serie</div>
+          <div class="why-desc">Tanto si necesitás un prototipo único como una pequeña serie, atendemos pedidos de cualquier volumen con el mismo cuidado.</div>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">⏱️</div>
+        <div>
+          <div class="why-title">Cumplimiento de plazos</div>
+          <div class="why-desc">40 años en el rubro enseñan que los plazos son parte del trabajo. Si acordamos una fecha, la cumplimos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ────────────────────────────────────── -->
+<section class="contact" id="contacto">
+  <div class="container">
+    <div class="tag">
+      <div class="tag-line"></div>
+      <span class="tag-text">Contacto</span>
+    </div>
+    <h2 class="section-title">Hablemos de<br>tu proyecto</h2>
+
+    <div class="contact-grid">
+      <div>
+        <p class="section-desc">
+          El presupuesto no tiene costo. Contanos qué necesitás y te respondemos a la brevedad. Podés comunicarte por cualquiera de estos medios o completar el formulario.
+        </p>
+
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="ci-icon">📞</div>
+            <div>
+              <div class="ci-label">Teléfono</div>
+              <div class="ci-value"><a href="tel:+5491130343314">11 3034-3314</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">✉️</div>
+            <div>
+              <div class="ci-label">Email</div>
+              <div class="ci-value"><a href="mailto:torneriaor.llavallol@gmail.com">torneriaor.llavallol@gmail.com</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">📍</div>
+            <div>
+              <div class="ci-label">Ubicación</div>
+              <div class="ci-value">Lavallol, Partido de Lomas de Zamora<br><span style="font-size:.82rem;color:var(--muted)">Buenos Aires, Argentina</span></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon">🕐</div>
+            <div>
+              <div class="ci-label">Horario de atención</div>
+              <div class="ci-value">Lunes a Viernes · 8 a 18 hs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-box">
+        <h3 class="form-title">Solicitar presupuesto</h3>
+        <p class="form-sub">Completá el formulario y te respondemos a la brevedad.</p>
+
+        <div class="setup-banner" id="setup-notice">
+         <!--<strong>⚙ Activación pendiente (1 minuto)</strong>
+          Entrá a <code>web3forms.com</code>, ingresá tu email y pegá la clave que recibirás
+          en el campo <code>access_key</code> dentro del HTML.<br>
+          <span style="font-size:.72rem;opacity:.7">Una vez configurado, eliminá este aviso.</span>
+        </div>-->
+
+        <form id="contact-form">
+          <!-- Web3Forms config -->
+          <input type="hidden" name="access_key" value="1f79c998-63bf-4f9b-891d-59d1c1b57ea0">
+          <input type="hidden" name="subject" value="Nuevo presupuesto — Rodriguez Metal">
+          <input type="hidden" name="from_name" value="Rodriguez Metal Web">
+          <input type="hidden" name="redirect" value="false">
+          <input type="checkbox" name="botcheck" style="display:none">
+
+          <div class="form-row">
+            <div class="fg">
+              <label>Nombre</label>
+              <input type="text" name="nombre" placeholder="Juan García" required>
+            </div>
+            <div class="fg">
+              <label>Teléfono</label>
+              <input type="tel" name="telefono" placeholder="11 1234-5678">
+            </div>
+          </div>
+          <div class="fg">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="email@ejemplo.com" required>
+          </div>
+          <div class="fg">
+            <label>Tipo de trabajo</label>
+            <select name="tipo_trabajo">
+              <option value="">Seleccioná una opción</option>
+              <option>Eje / buje / perno</option>
+              <option>Rosca / fileteado</option>
+              <option>Repuesto a medida</option>
+              <option>Reparación de pieza</option>
+              <option>Prototipo</option>
+              <option>Serie pequeña</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Descripción del trabajo</label>
+            <textarea name="descripcion" placeholder="Describí la pieza: material, dimensiones aproximadas, cantidad, si tenés plano o muestra para enviarnos..."></textarea>
+          </div>
+
+          <!-- Adjunto
+          <div class="fg">
+            <label>Adjuntar plano, croquis o imagen (opcional)</label>
+            <div class="file-zone" id="file-zone">
+              <input type="file" name="attachment" id="file-input" accept=".png,.jpg,.jpeg,.pdf">
+              <span class="fz-icon">📎</span>
+              <div class="fz-text">
+                <strong>Arrastrá un archivo o hacé click aquí</strong>
+                PNG, JPG o PDF · Máximo 5 MB
+              </div>
+            </div>
+            <div class="file-chosen" id="file-chosen">
+              <span>📄</span>
+              <span class="fc-name" id="fc-name"></span>
+              <span class="fc-size" id="fc-size"></span>
+              <span class="fc-remove" id="fc-remove" title="Quitar archivo">✕</span>
+            </div>
+          </div> -->
+
+          <button type="submit" class="form-btn" id="form-btn">Enviar consulta →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">Tornería<span>OR</span></div>
+  <p class="footer-tag">Tornería metalúrgica de precisión · Lavallol, Buenos Aires</p>
+  <div class="footer-divider"></div>
+  <p class="footer-copy">© 2024 Rodriguez Metal · Omar Rodríguez · Todos los derechos reservados</p>
+</footer>
+
+<!-- ─── SCRIPTS ────────────────────────────────────── -->
+<script>
+  /* ──────────────────────────────────────────────────────
+     SUPABASE — Configuración
+     ──────────────────────────────────────────────────────
+     Pasos para activar:
+     1. Creá cuenta gratuita en https://supabase.com
+     2. Creá un nuevo proyecto
+     3. En el editor SQL ejecutá:
+
+        create table contactos (
+          id           bigserial primary key,
+          nombre       text,
+          telefono     text,
+          email        text,
+          tipo_trabajo text,
+          descripcion  text,
+          created_at   timestamptz default now()
+        );
+
+        -- Permitir inserciones desde el sitio web (sin login):
+        alter table contactos enable row level security;
+        create policy "Insertar desde web"
+          on contactos for insert
+          with check (true);
+
+     4. Copiá tu URL y anon key desde:
+        Settings → API → Project URL y Project API Keys (anon public)
+     5. Pegá los valores abajo reemplazando los placeholders
+  ────────────────────────────────────────────────────── */
+  const SUPABASE_URL = 'https://htcqeaxeyatidumbihlk.supabase.co';    // ej: https://xyzabc.supabase.co
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0Y3FlYXhleWF0aWR1bWJpaGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTQ3NTUsImV4cCI6MjA5NjA3MDc1NX0.N9ld2C5SkILOZ9UbrPnQoxBUYLF5DMKRXoc8YRBHkKc'; // clave anon pública
+
+  const db = (SUPABASE_URL !== 'TU_SUPABASE_URL')
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+    : null;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── Hamburger menu ── */
+  const hamburger = document.getElementById('hamburger');
+  const navLinks  = document.querySelector('.nav-links');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navLinks.classList.toggle('open');
+  });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      navLinks.classList.remove('open');
+    });
+  });
+
+  /* ── Counter util ── */
+  function runCounter(el) {
+    const target = parseInt(el.dataset.target);
+    const dur = 2200;
+    const start = Date.now();
+    const tick = setInterval(() => {
+      const p = Math.min((Date.now() - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(ease * target).toLocaleString('es-AR');
+      if (p >= 1) clearInterval(tick);
+    }, 16);
+  }
+
+  /* ── Hero entrance ── */
+  const tl = gsap.timeline({ delay: .15 });
+  tl.from('.hero-badge',   { opacity: 0, y: 24, duration: .7 })
+    .from('.hero-title .word', { opacity: 0, y: 55, duration: .9, stagger: .14, ease: 'power3.out' }, '-=.3')
+    .from('.hero-sub',     { opacity: 0, y: 24, duration: .7 }, '-=.4')
+    .from('.hero-buttons', { opacity: 0, y: 20, duration: .6 }, '-=.4')
+    .from('.stat',         { opacity: 0, y: 30, duration: .6, stagger: .12 }, '-=.3')
+    .from('.hero-corner',  { opacity: 0, duration: .8 }, '-=.5');
+
+  /* ── Counter trigger ── */
+  ScrollTrigger.create({
+    trigger: '.hero-stats',
+    start: 'top 85%',
+    once: true,
+    onEnter: () => document.querySelectorAll('.stat-count').forEach(runCounter)
+  });
+
+  /* ── Section helper ── */
+  function fadeIn(targets, trigger, extra = {}) {
+    gsap.from(targets, {
+      scrollTrigger: { trigger, start: 'top 78%', once: true },
+      opacity: 0, duration: .8, ease: 'power3.out',
+      ...extra
+    });
+  }
+
+  /* ── About ── */
+  fadeIn('.about-visual', '.about', { x: -60 });
+  fadeIn('.about-text > *', '.about', { x: 50, stagger: .12 });
+  fadeIn('.feature', '.about-features', { x: 30, stagger: .12 });
+
+  /* ── Services ── */
+  fadeIn('.services-head > *', '.services-head', { y: 30, stagger: .15 });
+  fadeIn('.card', '.services-grid', { y: 50, stagger: .09 });
+
+  /* ── Process ── */
+  fadeIn('.step', '.steps', { y: 40, stagger: .15 });
+
+  /* ── Why ── */
+  fadeIn('.why-card', '.why-grid', { y: 40, stagger: .12 });
+
+  /* ── Contact ── */
+  fadeIn('.contact-items .contact-item', '.contact-items', { x: -30, stagger: .12 });
+  fadeIn('.form-box', '.form-box', { x: 50 });
+
+  /* ── Navbar shadow on scroll ── */
+  ScrollTrigger.create({
+    start: 80,
+    onUpdate: s => {
+      document.getElementById('nav').style.boxShadow =
+        s.progress > 0 ? '0 4px 24px rgba(0,0,0,.45)' : 'none';
+    }
+  });
+
+  /* ── File input UX (activar si descomentás el adjunto en el HTML) ── */
+  const fileInput  = document.getElementById('file-input');
+  if (fileInput) {
+    const fileZone   = document.getElementById('file-zone');
+    const fileChosen = document.getElementById('file-chosen');
+    const fcName     = document.getElementById('fc-name');
+    const fcSize     = document.getElementById('fc-size');
+    const fcRemove   = document.getElementById('fc-remove');
+
+    function showFile(file) {
+      if (!file) return;
+      const mb = (file.size / 1048576).toFixed(2);
+      if (file.size > 5 * 1048576) {
+        alert('El archivo supera 5 MB. Elegí uno más pequeño.');
+        fileInput.value = '';
+        return;
+      }
+      fcName.textContent = file.name;
+      fcSize.textContent = mb + ' MB';
+      fileChosen.classList.add('show');
+    }
+
+    fileInput.addEventListener('change', () => showFile(fileInput.files[0]));
+    fcRemove.addEventListener('click', () => { fileInput.value = ''; fileChosen.classList.remove('show'); });
+    fileZone.addEventListener('dragover', e => { e.preventDefault(); fileZone.classList.add('drag-over'); });
+    fileZone.addEventListener('dragleave', () => fileZone.classList.remove('drag-over'));
+    fileZone.addEventListener('drop', e => {
+      e.preventDefault();
+      fileZone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length) { fileInput.files = e.dataTransfer.files; showFile(fileInput.files[0]); }
+    });
+  }
+
+  /* ── Form submit → Supabase + Web3Forms ── */
+  document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn      = document.getElementById('form-btn');
+    const formData = new FormData(this);
+
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+
+    try {
+      /* 1 ── Guardar en Supabase (si está configurado) */
+      if (db) {
+        const { error: dbError } = await db.from('contactos').insert([{
+          nombre:       formData.get('nombre'),
+          telefono:     formData.get('telefono'),
+          email:        formData.get('email'),
+          tipo_trabajo: formData.get('tipo_trabajo'),
+          descripcion:  formData.get('descripcion')
+        }]);
+        if (dbError) console.warn('Supabase:', dbError.message);
+      }
+
+      /* 2 ── Enviar email via Web3Forms */
+      const key = formData.get('access_key');
+      if (key && key !== 'TU_CLAVE_AQUI') {
+        const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!data.success) console.warn('Web3Forms:', data.message);
+      }
+
+      /* 3 ── Éxito */
+      btn.textContent = '✓ Consulta enviada';
+      btn.style.background = '#16a34a';
+      this.reset();
+      setTimeout(() => {
+        btn.textContent = 'Enviar consulta →';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 4000);
+
+    } catch (err) {
+      btn.textContent = '✗ Error — intentá de nuevo';
+      btn.style.background = '#dc2626';
+      console.error(err);
+      setTimeout(() => {
+        btn.textContent = 'Enviar consulta →';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 4000);
+    }
+  });
+</script>
+</body>
+</html>
